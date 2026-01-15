@@ -5,3 +5,13 @@ SELECT name FROM sqlite_master WHERE type='table';
 SELECT * FROM orders LIMIT 5;
 SELECT * FROM customers LIMIT 5;
 SELECT * FROM order_payments LIMIT 5;
+
+-- List all tables in the database
+SELECT name
+FROM sqlite_master
+WHERE type = 'table';
+
+-- Preview key tables
+SELECT * FROM orders LIMIT 5;
+SELECT * FROM customers LIMIT 5;
+SELECT * FROM order_payments LIMIT 5;
