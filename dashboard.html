@@ -1,1 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Customer Retention Dashboard (SQL)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Plotly (later charts) -->
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+
+  <!-- Simple styling -->
+  <style>
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: #0f172a;
+      color: #e5e7eb;
+      margin: 0;
+      padding: 24px;
+    }
+
+    h1 {
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: #9ca3af;
+      margin-bottom: 24px;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .kpi-card {
+      background: #111827;
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    }
+
+    .kpi-title {
+      font-size: 13px;
+      color: #9ca3af;
+    }
+
+    .kpi-value {
+      font-size: 30px;
+      font-weight: 700;
+      margin: 8px 0;
+    }
+
+    .kpi-sub {
+      font-size: 11px;
+      color: #6b7280;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Customer Behaviour & Retention</h1>
+  <div class="subtitle">
+    All KPIs computed in SQLite (SQL-only). Dashboard rendered client-side via GitHub Pages.
+  </div>
+
+  <!-- KPI CARDS -->
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <script src="./dashboard.js"></script>
+</body>
+</html>
 
