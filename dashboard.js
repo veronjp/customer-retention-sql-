@@ -1,49 +1,34 @@
-async function loadKpis() {
-  const res = await fetch("./outputs/kpi_cards.csv");
-  const text = await res.text();
-
-  const rows = text.trim().split("\n").slice(1).map(r => {
-    const [kpi, value, format] = r.split(",");
-    return { kpi, value: Number(value), format };
-  });
-
-  const grid = document.getElementById("kpiGrid");
-
-  rows.forEach(r => {
-    const card = document.createElement("div");
-    card.className = "kpi-card";
-
-    const title = document.createElement("div");
-    title.className = "kpi-title";
-    title.textContent = prettyTitle(r.kpi);
-
-    const value = document.createElement("div");
-    value.className = "kpi-value";
-    value.textContent = formatValue(r.value, r.format);
-
-    const sub = document.createElement("div");
-    sub.className = "kpi-sub";
-    sub.textContent = subtitleText(r.kpi);
-
-    card.appendChild(title);
-    card.appendChild(value);
-    card.appendChild(sub);
-
-    grid.appendChild(card);
+// ---------- helpers ----------
+function parseCSV(text) {
+  const lines = text.trim().split(/\r?\n/);
+  const headers = lines[0].split(",").map(h => h.trim());
+  return lines.slice(1).filter(Boolean).map(line => {
+    const cols = line.split(",").map(c => c.trim());
+    const row = {};
+    headers.forEach((h, i) => row[h] = cols[i]);
+    return row;
   });
 }
 
+function showError(elId, msg) {
+  const el = document.getElementById(elId);
+  if (el) el.innerHTML = `<div style="color:#fca5a5;padding:12px;">${msg}</div>`;
+}
+
+async function fetchText(path) {
+  const url = new URL(path, window.location.href).toString();
+  const res = await fetch(url, { cache: "no-store" });
+  if (!res.ok) throw new Error(`Fetch failed ${res.status}: ${url}`);
+  return await res.text();
+}
+
+// ---------- KPI cards ----------
 function formatValue(v, format) {
-  if (format === "percent") {
-    return (v * 100).toFixed(1) + "%";
-  }
+  if (format === "percent") return (v * 100).toFixed(1) + "%";
   if (format === "currency") {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD"
-    }).format(v);
+    return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(v);
   }
-  return v;
+  return String(v);
 }
 
 function prettyTitle(kpi) {
@@ -64,24 +49,46 @@ function subtitleText(kpi) {
   }[kpi] || "";
 }
 
-loadKpis().catch(err => {
-  console.error(err);
-});
-function parseCSV(text) {
-  const lines = text.trim().split("\n");
-  const headers = lines[0].split(",");
-  return lines.slice(1).map(line => {
-    const cols = line.split(",");
-    const row = {};
-    headers.forEach((h, i) => row[h] = cols[i]);
-    return row;
+async function loadKpiCards() {
+  const text = await fetchText("./outputs/kpi_cards.csv");
+  const rows = parseCSV(text).map(r => ({
+    kpi: r.kpi,
+    value: Number(r.value),
+    format: r.format
+  }));
+
+  const grid = document.getElementById("kpiGrid");
+  grid.innerHTML = "";
+
+  rows.forEach(r => {
+    const card = document.createElement("div");
+    card.className = "kpi-card";
+
+    const title = document.createElement("div");
+    title.className = "kpi-title";
+    title.textContent = prettyTitle(r.kpi);
+
+    const value = document.createElement("div");
+    value.className = "kpi-value";
+    value.textContent = formatValue(r.value, r.format);
+
+    const sub = document.createElement("div");
+    sub.className = "kpi-sub";
+    sub.textContent = subtitleText(r.kpi);
+
+    card.appendChild(title);
+    card.appendChild(value);
+    card.appendChild(sub);
+    grid.appendChild(card);
   });
 }
 
+// ---------- charts ----------
 async function loadRepeatChart() {
-  const res = await fetch("./outputs/repeat_windows.csv");
-  const text = await res.text();
+  const text = await fetchText("./outputs/repeat_windows.csv");
   const rows = parseCSV(text);
+
+  if (!rows.length) throw new Error("repeat_windows.csv parsed 0 rows");
 
   const x = rows.map(r => r.window_days);
   const y = rows.map(r => Number(r.repeat_rate) * 100);
@@ -90,7 +97,7 @@ async function loadRepeatChart() {
     type: "bar",
     x, y,
     marker: { color: "#7c5cff" },
-    hovertemplate: "<b>%{x} days</b><br>Repeat: %{y:.1f}%<extra></extra>"
+    hovertemplate: "<b>%{x}</b><br>Repeat: %{y:.1f}%<extra></extra>"
   }], {
     paper_bgcolor: "rgba(0,0,0,0)",
     plot_bgcolor: "rgba(0,0,0,0)",
@@ -102,9 +109,10 @@ async function loadRepeatChart() {
 }
 
 async function loadChurnChart() {
-  const res = await fetch("./outputs/monthly_churn.csv");
-  const text = await res.text();
+  const text = await fetchText("./outputs/monthly_churn.csv");
   const rows = parseCSV(text);
+
+  if (!rows.length) throw new Error("monthly_churn.csv parsed 0 rows");
 
   const x = rows.map(r => r.prev_month);
   const y = rows.map(r => Number(r.churn_rate) * 100);
@@ -126,6 +134,10 @@ async function loadChurnChart() {
   }, { responsive: true, displaylogo: false });
 }
 
-// Call these after KPI cards load
-loadRepeatChart().catch(console.error);
-loadChurnChart().catch(console.error);
+// ---------- boot ----------
+(async function main() {
+  console.log("dashboard.js loaded ✅");
+  try { await loadKpiCards(); } catch (e) { console.error(e); }
+  try { await loadRepeatChart(); } catch (e) { console.error(e); showError("repeatChart", e.message); }
+  try { await loadChurnChart(); } catch (e) { console.error(e); showError("churnChart", e.message); }
+})();
