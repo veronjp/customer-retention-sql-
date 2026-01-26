@@ -1,0 +1,5 @@
+kpi,value,format
+30_day_retention_rate,0.0161,percent
+repeat_purchase_rate,0.0312,percent
+avg_days_to_second_purchase,80.3,number
+avg_clv_proxy,166.59,currency
