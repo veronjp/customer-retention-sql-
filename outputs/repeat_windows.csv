@@ -1,0 +1,5 @@
+window_days,repeat_customers,total_customers,repeat_rate
+30,1543,96096,0.0161
+60,1226,96096,0.0128
+90,1010,96096,0.0105
+>120,832,96096,0.0087
