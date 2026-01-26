@@ -69,8 +69,15 @@ async function loadKpiCards() {
     title.textContent = prettyTitle(r.kpi);
 
     const value = document.createElement("div");
-    value.className = "kpi-value";
+    value.className = "kpi-value " + valueClass(r.kpi);
     value.textContent = formatValue(r.value, r.format);
+
+    const icon = document.createElement("div");
+    icon.className = "kpi-icon";
+    icon.textContent = kpiIcon(r.kpi);
+
+    card.appendChild(icon);
+
 
     const sub = document.createElement("div");
     sub.className = "kpi-sub";
@@ -102,6 +109,7 @@ async function loadRepeatChart() {
     paper_bgcolor: "rgba(0,0,0,0)",
     plot_bgcolor: "rgba(0,0,0,0)",
     font: { color: "#e5e7eb" },
+    hovermode: "x unified",
     margin: { l: 55, r: 20, t: 10, b: 45 },
     yaxis: { title: "Repeat rate (%)", gridcolor: "rgba(255,255,255,0.08)" },
     xaxis: { title: "Window", gridcolor: "rgba(255,255,255,0.08)" }
@@ -128,6 +136,7 @@ async function loadChurnChart() {
     paper_bgcolor: "rgba(0,0,0,0)",
     plot_bgcolor: "rgba(0,0,0,0)",
     font: { color: "#e5e7eb" },
+    hovermode: "x unified",
     margin: { l: 55, r: 20, t: 10, b: 45 },
     yaxis: { title: "Churn rate (%)", gridcolor: "rgba(255,255,255,0.08)" },
     xaxis: { title: "Month", gridcolor: "rgba(255,255,255,0.08)" }
@@ -141,3 +150,25 @@ async function loadChurnChart() {
   try { await loadRepeatChart(); } catch (e) { console.error(e); showError("repeatChart", e.message); }
   try { await loadChurnChart(); } catch (e) { console.error(e); showError("churnChart", e.message); }
 })();
+
+function kpiIcon(kpi) {
+  return {
+    "30_day_retention_rate": "📈",
+    "repeat_purchase_rate": "🔁",
+    "avg_days_to_second_purchase": "⏱️",
+    "avg_clv_proxy": "💰"
+  }[kpi] || "📊";
+}
+
+function valueClass(kpi) {
+  if (kpi === "avg_clv_proxy") return "positive";
+  return "neutral";
+}
+function subtitleText(kpi) {
+  return {
+    "30_day_retention_rate": "Returned ≥30 days after first purchase",
+    "repeat_purchase_rate": "Customers with more than one order",
+    "avg_days_to_second_purchase": "Time between 1st and 2nd order",
+    "avg_clv_proxy": "Total historical spend per customer"
+  }[kpi] || "";
+}

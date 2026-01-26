@@ -33,6 +33,27 @@
     .kpi-title { font-size: 13px; color: #9ca3af; }
     .kpi-value { font-size: 30px; font-weight: 700; margin: 8px 0; }
     .kpi-sub { font-size: 11px; color: #6b7280; }
+.kpi-card {
+  position: relative;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(0,0,0,0.45);
+}
+
+.kpi-icon {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  font-size: 18px;
+  opacity: 0.6;
+}
+
+.kpi-value.positive { color: #22c55e; }   /* green */
+.kpi-value.neutral  { color: #e5e7eb; }   /* default */
+
+
   </style>
 </head>
 
