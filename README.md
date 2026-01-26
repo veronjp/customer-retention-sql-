@@ -62,7 +62,7 @@ This suggests that **retention initiatives focused on the first 60–90 days cou
 
 ## Interactive Dashboard
 👉 View the live dashboard here:  
-https://<veronjp>.github.io/<customer-retention-sql->/dashboard.html
+https://veronjp.github.io/customer-retention-sql-/dashboard.html
 
 The dashboard is fully client-side and dynamically loads SQL-derived datasets.
 
